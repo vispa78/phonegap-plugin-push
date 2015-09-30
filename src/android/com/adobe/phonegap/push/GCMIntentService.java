@@ -254,6 +254,9 @@ public class GCMIntentService extends GCMBaseIntentService implements PushConsta
     private void setNotificationVibration(Bundle extras, Boolean vibrateOption, NotificationCompat.Builder mBuilder) {
         String vibrationPattern = getString(extras, VIBRATION_PATTERN);
         if (vibrationPattern != null) {
+            if (vibrationPattern.equalsIgnoreCase(NO_VIBRATION))
+                return;
+
             String[] items = vibrationPattern.replaceAll("\\[", "").replaceAll("\\]", "").split(",");
             long[] results = new long[items.length];
             for (int i = 0; i < items.length; i++) {
@@ -372,6 +375,9 @@ public class GCMIntentService extends GCMBaseIntentService implements PushConsta
             soundname = getString(extras, SOUND);
         }
         if (soundname != null) {
+            if (soundname.equalsIgnoreCase(NO_SOUND))
+                return;
+
             Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
                     + "://" + context.getPackageName() + "/raw/" + soundname);
             Log.d(LOG_TAG, sound.toString());
