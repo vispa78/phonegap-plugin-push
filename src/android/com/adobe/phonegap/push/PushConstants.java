@@ -19,7 +19,11 @@ public interface PushConstants {
     public static final String STYLE = "style";
     public static final String SUMMARY_TEXT = "summaryText";
     public static final String PICTURE = "picture";
+    public static final String GCM_N = "gcm.n.";
     public static final String GCM_NOTIFICATION = "gcm.notification";
+    public static final String UA_PREFIX = "com.urbanairship.push";
+    public static final String PARSE_COM_DATA = "data";
+    public static final String ALERT = "alert";
     public static final String MESSAGE = "message";
     public static final String BODY = "body";
     public static final String SOUNDNAME = "soundname";
@@ -43,4 +47,6 @@ public interface PushConstants {
     public static final String COLLAPSE_KEY = "collapse_key";
     public static final String NO_VIBRATION = "novibration";
     public static final String NO_SOUND = "nosound";
+    public static final String FORCE_SHOW = "forceShow";
+    public static final String GCM = "GCM";
 }

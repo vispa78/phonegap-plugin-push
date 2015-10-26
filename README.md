@@ -71,10 +71,12 @@ Parameter | Description
 `options.android.sound` | `Boolean` Optional. If `true` it plays the sound specified in the push data or the default system sound. Default is `true`.
 `options.android.vibrate` | `Boolean` Optional. If `true` the device vibrates on receipt of notification. Default is `true`.
 `options.android.clearNotifications` | `Boolean` Optional. If `true` the app clears all pending notifications when it is closed. Default is `true`.
+`options.android.forceShow` | `Boolean` Optional. If `true` will always show a notification, even when the app is on the foreground. Default is `false`.
 `options.ios` | `JSON Object` iOS specific initialization options.
-`options.ios.alert` | `Boolean` Optional. If `true` the device shows an alert on receipt of notification. Default is `false`.
-`options.ios.badge` | `Boolean` Optional. If `true` the device sets the badge number on receipt of notification. Default is `false`.
-`options.ios.sound` | `Boolean` Optional. If `true` the device plays a sound on receipt of notification. Default is `false`.
+`options.ios.alert` | `Boolean`\|`String` Optional. If `true`\|`"true"` the device shows an alert on receipt of notification. Default is `false`\|`"false"`. **Note:** the value you set this option to the first time you call the init method will be how the application always acts. Once this is set programmatically in the init method it can only be changed manually by the user in Settings>Notifications>`App Name`. This is normal iOS behaviour.
+`options.ios.badge` | `Boolean`\|`String` Optional. If `true`\|`"true"` the device sets the badge number on receipt of notification. Default is `false`\|`"false"`. **Note:** the value you set this option to the first time you call the init method will be how the application always acts. Once this is set programmatically in the init method it can only be changed manually by the user in Settings>Notifications>`App Name`. This is normal iOS behaviour.
+`options.ios.sound` | `Boolean`\|`String` Optional. If `true`\|`"true"` the device plays a sound on receipt of notification. Default is `false`\|`"false"`. **Note:** the value you set this option to the first time you call the init method will be how the application always acts. Once this is set programmatically in the init method it can only be changed manually by the user in Settings>Notifications>`App Name`. This is normal iOS behaviour.
+`options.ios.clearBadge` | `Boolean`\|`String` Optional. If `true`\|`"true"` the badge will be cleared on app startup. Default is `false`\|`"false"`.
 `options.windows` | `JSON Object` Windows specific initialization options.
 
 #### Returns
@@ -176,6 +178,18 @@ The `count` is an integer indicating what number should show up in the badge. Pa
 push.setApplicationIconBadgeNumber(successHandler, errorHandler, count);
 ```
 
+### push.getApplicationIconBadgeNumber(successHandler, errorHandler) - iOS only
+
+Get the current badge count visible when the app is not running
+
+successHandler gets called with an integer which is the current badge count
+
+#### Example
+
+```javascript
+push.getApplicationIconBadgeNumber(successHandler, errorHandler);
+```
+
 ## PhoneGap Build Support
 
 Including this plugin in a project that is built by PhoneGap Build is as easy as adding:
@@ -196,9 +210,9 @@ Note: version 1.3.0 of this plugin begins to use Gradle to install the Android S
 
 ### Compiling
 
-As of version 1.3.0 the plugin has been switched to using Gradle/Maven for building. You will need to ensure that you have installed the Android Support Library version 23 or greater.
+As of version 1.3.0 the plugin has been switched to using Gradle/Maven for building. You will need to ensure that you have installed the Android Support Library version 23 or greater, Android Support Repository version 20 or greater, Google Play Services version 27 or greater and Google Repository version 22 or greater.
 
-![android support library](https://cloud.githubusercontent.com/assets/353180/10171900/588dbd0a-66aa-11e5-8308-2daf80842119.png)
+![android support library](https://cloud.githubusercontent.com/assets/353180/10230226/0627931e-684a-11e5-9a6b-72d72997f655.png)
 
 For more detailed instructions on how to install the Android Support Library visit [Google's documentation](https://developer.android.com/tools/support-library/setup.html).
 
@@ -446,6 +460,39 @@ Perhaps you want to include a large picture in the notification that you are sen
 This will produce the following notification in your tray:
 
 ![2015-08-25 16 08 00](https://cloud.githubusercontent.com/assets/353180/9472260/3655fa7a-4b22-11e5-8d87-20528112de16.png)
+
+### Co-existing with FaceBook Plugin
+
+There are a number of Cordova FaceBook Plugins available but the one that we recommend is [Jeduan's fork](https://github.com/jeduan/cordova-plugin-facebook4) of the original Wizcorp plugin. It is setup to use Gradle/Maven properly and the latest FaceBook SDK.
+
+To add to your app:
+
+```
+phonegap plugin add https://github.com/jeduan/cordova-plugin-facebook4 --variable APP_ID="App ID" --variable APP_NAME="App Name"
+```
+or 
+
+```
+cordova plugin add https://github.com/jeduan/cordova-plugin-facebook4 --variable APP_ID="App ID" --variable APP_NAME="App Name"
+```
+
+If you have an issue compiling the app and you are getting this error:
+
+```
+* What went wrong:
+Execution failed for task ':processDebugManifest'.
+> Manifest merger failed : uses-sdk:minSdkVersion 14 cannot be smaller than version 15 declared in library /Users/smacdona/code/bookface/platforms/android/build/intermediates/exploded-aar/com.facebook.android/facebook-android-sdk/4.6.0/AndroidManifest.xml
+  	Suggestion: use tools:overrideLibrary="com.facebook" to force usage
+```
+
+Then you can add the following entry into your config.xml file in the android platform tag.
+
+```
+<platform name="android">
+    <preference name="android-minSdkVersion" value="15"/>
+ </platform>
+ ```
+
 
 ## iOS Behaviour
 

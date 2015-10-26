@@ -33,6 +33,7 @@
 @synthesize callbackId;
 @synthesize notificationCallbackId;
 @synthesize callback;
+@synthesize clearBadge;
 
 
 - (void)unregister:(CDVInvokedUrlCommand*)command;
@@ -61,6 +62,7 @@
     id badgeArg = [iosOptions objectForKey:@"badge"];
     id soundArg = [iosOptions objectForKey:@"sound"];
     id alertArg = [iosOptions objectForKey:@"alert"];
+    id clearBadgeArg = [iosOptions objectForKey:@"clearBadge"];
     
     if (([badgeArg isKindOfClass:[NSString class]] && [badgeArg isEqualToString:@"true"]) || [badgeArg boolValue])
     {
@@ -90,7 +92,17 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
     UserNotificationTypes |= UIUserNotificationActivationModeBackground;
 #endif
-    
+        
+        if (clearBadgeArg == nil || ([clearBadgeArg isKindOfClass:[NSString class]] && [clearBadgeArg isEqualToString:@"false"]) || ![clearBadgeArg boolValue]) {
+            NSLog(@"PushPlugin.register: setting badge to false");
+            clearBadge = NO;
+        } else {
+            NSLog(@"PushPlugin.register: setting badge to true");
+            clearBadge = YES;
+            [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+        }
+        NSLog(@"PushPlugin.register: clear badge is set to %d", clearBadge);
+        
     if (notificationTypes == UIRemoteNotificationTypeNone)
         NSLog(@"PushPlugin.register: Push notification type is set to none");
     
@@ -117,6 +129,10 @@
 }
 
 - (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    if (self.callbackId == nil) {
+        NSLog(@"Unexpected call to didRegisterForRemoteNotificationsWithDeviceToken, ignoring: %@", deviceToken);
+        return;
+    }
     NSLog(@"Push Plugin register success: %@", deviceToken);
     
     NSMutableDictionary *results = [NSMutableDictionary dictionary];
@@ -180,6 +196,10 @@
 
 - (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
+    if (self.callbackId == nil) {
+        NSLog(@"Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
+        return;
+    }
     NSLog(@"Push Plugin register failed");
     [self failWithMessage:@"" withError:error];
 }
@@ -260,6 +280,14 @@
     
     NSString* message = [NSString stringWithFormat:@"app badge count set to %d", badge];
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
+    [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
+}
+
+- (void)getApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command
+{
+    NSInteger badge = [UIApplication sharedApplication].applicationIconBadgeNumber;
+
+    CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:(int)badge];
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
